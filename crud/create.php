@@ -47,7 +47,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $sql = "INSERT INTO tbl_orte (PLZ, Ortname)
         VALUES (?, ?);";
         $demande = mysqli_insert_id($con);
-        $sql = "INSERT Into tbl_lernende (Vorname, Nachname,$demande as fk_o, fk_m)
+        $sql = "INSERT Into tbl_lernende (Vorname, Nachname,fk_o as $demande, fk_m)
           VALUES (?, ?,?, 3);";
 
         if($stmt = mysqli_prepare($con, $sql)){

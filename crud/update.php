@@ -50,7 +50,6 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         $sql = "UPDATE tbl_orte
         SET PLZ=?, ortname=?
         WHERE id=?;";
-        //$mysqli->query($query);
         $demande = mysqli_insert_id($con);
         $sql = "UPDATE tbl_lernende
         SET Vorname = ?, nachname =?, fk_o = $demande
@@ -59,11 +58,13 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
          
         if($stmt = mysqli_prepare($con, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ssi",  $param_plz, $param_ortname, $param_id);
+            mysqli_stmt_bind_param($stmt, "ssssi",  $param_plz, $param_ortname, $param_vorname, $param_nachname, $param_id);
             
             // Set parameters
             $param_plz = $plz;
             $param_ortname = $ortname;
+            $param_vorname = $vorname;
+            $param_nachname = $nachname;
             $param_id = $id;
             
             // Attempt to execute the prepared statement
