@@ -45,18 +45,23 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     }
     
     // Check input errors before inserting in database
-    if(empty($name_err) && empty($address_err) && empty($salary_err)){
+    if(empty($vorname_err) && empty($nachname_err) && empty($plz_err) && empty($ortname_err)){
         // Prepare an update statement
-        $sql = "UPDATE tbl_lernende l SET vorname=?, nachname=?  WHERE id=?;";
-        $sql = "UPDATE tbl_orte SET plz=?, ortname=?  WHERE id=?;";
+        $sql = "UPDATE tbl_orte
+        SET PLZ=?, ortname=?
+        WHERE id=?;";
+        //$mysqli->query($query);
+        $demande = mysqli_insert_id($con);
+        $sql = "UPDATE tbl_lernende
+        SET Vorname = ?, nachname =?, fk_o = $demande
+        WHERE id=?;";
+        
          
         if($stmt = mysqli_prepare($con, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ssssi", $param_vorname, $param_nachname, $param_plz, $param_ortname, $param_id);
+            mysqli_stmt_bind_param($stmt, "ssi",  $param_plz, $param_ortname, $param_id);
             
             // Set parameters
-            $param_vorname = $vorname;
-            $param_nachname = $nachname;
             $param_plz = $plz;
             $param_ortname = $ortname;
             $param_id = $id;
@@ -75,6 +80,28 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
           }
         }
          
+        if($stmt = mysqli_prepare($con, $sql)){
+          // Bind variables to the prepared statement as parameters
+          mysqli_stmt_bind_param($stmt, "ssi", $param_vorname, $param_nachname, $param_id);
+          
+          // Set parameters
+          $param_vorname = $vorname;
+          $param_nachname = $nachname;
+          $param_id = $demande;
+          
+          // Attempt to execute the prepared statement
+          if(mysqli_stmt_execute($stmt)){
+              // Records updated successfully. Redirect to landing page
+              header("location: dashboard.php");
+              exit();
+          } else{
+              echo "Something went wrong. Please try again later.";
+          }
+          mysqli_stmt_close($stmt);
+        } else {
+            echo "Something's wrong with the query: " . mysqli_error($con);
+        }
+      
         // Close statement
        // mysqli_stmt_close($stmt);
     

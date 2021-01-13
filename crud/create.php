@@ -44,21 +44,24 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     // Check input errors before inserting in database
     if(empty($vorname_err) && empty($nachname_err) && empty($plz_err) && empty($ortname_err)){
         // Prepare an insert statement
-        $sql = "INSERT INTO tbl_lernende l (l.vorname, l.nachname, l.fk_o, o.PLZ, o.Ortname) 
-        join tbl_orte o on o.id = l.fk_o
-        VALUES (?, ?, ?,?,?)
-        ;";
-        /*$sql = "INSERT into tbl_orte (PLZ, Ortname) VALUES (?, ?);*/
-         
+        $sql = "INSERT INTO tbl_orte (PLZ, Ortname)
+        VALUES (?, ?);";
+        $demande = mysqli_insert_id($con);
+        $sql = "INSERT Into tbl_lernende (Vorname, Nachname,$demande as fk_o, fk_m)
+          VALUES (?, ?,?, 3);";
+
         if($stmt = mysqli_prepare($con, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ssss", $param_vorname, $param_nachname, $param_plz, $param_ortname);
+            mysqli_stmt_bind_param($stmt, "ssssii", $param_plz, $param_ortname,$param_vorname, $param_nachname, $param_demande, $param_fk );
             
             // Set parameters
-            $param_vorname = $vorname;
-            $param_nachname = $nachname;
+           
             $param_plz = $plz;
             $param_ortname = $ortname;
+            $param_vorname = $vorname;
+            $param_nachname = $nachname;
+            $param_demande = $demande;
+            $param_fk = 3;
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
@@ -72,14 +75,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
           } else {
               echo "Something's wrong with the query: " . mysqli_error($con);
           }
-          
-          
-         
-        // Close statement
-       // mysqli_stmt_close($stmt);
+
     }
-    
-    // Close connection
     mysqli_close($con);
 }
 ?>
