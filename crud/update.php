@@ -7,7 +7,10 @@ $vorname = $nachname = $plz = $ortname = "";
 $vorname_err = $nachname_err = $plz_err = $ortname_err = "";
  
 // Processing form data when form is submitted
-if($_SERVER["REQUEST_METHOD"] == "POST"){
+if(isset($_POST["id"]) && !empty($_POST["id"])){
+    // Get hidden input value
+    $id = $_POST["id"];
+    
     // Validate name
     $input_vorname = trim($_POST["vorname"]);
     if(empty($input_vorname)){
@@ -34,7 +37,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $plz = $input_plz;
     }
     
-    $input_ortname = trim($_POST["ortname"]);
+    $input_ortname = trim($_POST["Ortname"]);
     if(empty($input_ortname)){
         $salary_err = "Bitte geben Sie einen Ortnamen ein.";     
     } else{
@@ -42,27 +45,25 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
     }
     
     // Check input errors before inserting in database
-    if(empty($vorname_err) && empty($nachname_err) && empty($plz_err) && empty($ortname_err)){
-        // Prepare an insert statement
-        $sql = "INSERT INTO tbl_lernende l (l.vorname, l.nachname, l.fk_o, o.PLZ, o.Ortname) 
-        join tbl_orte o on o.id = l.fk_o
-        VALUES (?, ?, ?,?,?)
-        ;";
-        /*$sql = "INSERT into tbl_orte (PLZ, Ortname) VALUES (?, ?);*/
+    if(empty($name_err) && empty($address_err) && empty($salary_err)){
+        // Prepare an update statement
+        $sql = "UPDATE tbl_lernende l SET vorname=?, nachname=?  WHERE id=?;";
+        $sql = "UPDATE tbl_orte SET plz=?, ortname=?  WHERE id=?;";
          
         if($stmt = mysqli_prepare($con, $sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ssss", $param_vorname, $param_nachname, $param_plz, $param_ortname);
+            mysqli_stmt_bind_param($stmt, "ssssi", $param_vorname, $param_nachname, $param_plz, $param_ortname, $param_id);
             
             // Set parameters
             $param_vorname = $vorname;
             $param_nachname = $nachname;
             $param_plz = $plz;
             $param_ortname = $ortname;
+            $param_id = $id;
             
             // Attempt to execute the prepared statement
             if(mysqli_stmt_execute($stmt)){
-                // Records created successfully. Redirect to landing page
+                // Records updated successfully. Redirect to landing page
                 header("location: dashboard.php");
                 exit();
             } else{
@@ -72,15 +73,65 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
           } else {
               echo "Something's wrong with the query: " . mysqli_error($con);
           }
-          
-          
+        }
          
         // Close statement
        // mysqli_stmt_close($stmt);
-    }
+    
     
     // Close connection
     mysqli_close($con);
+} else{
+    // Check existence of id parameter before processing further
+    if(isset($_GET["id"]) && !empty(trim($_GET["id"]))){
+        // Get URL parameter
+        $id =  trim($_GET["id"]);
+        
+        // Prepare a select statement
+        $sql = "SELECT l.id, l.Vorname, l.Nachname, o.PLZ, o.Ortname FROM tbl_lernende l
+        join tbl_orte o on o.id = l.fk_o
+        WHERE l.id = ?;";
+        if($stmt = mysqli_prepare($con, $sql)){
+            // Bind variables to the prepared statement as parameters
+            mysqli_stmt_bind_param($stmt, "i", $param_id);
+            
+            // Set parameters
+            $param_id = $id;
+            
+            // Attempt to execute the prepared statement
+            if(mysqli_stmt_execute($stmt)){
+                $result = mysqli_stmt_get_result($stmt);
+    
+                if(mysqli_num_rows($result) == 1){
+                    /* Fetch result row as an associative array. Since the result set contains only one row, we don't need to use while loop */
+                    $row = mysqli_fetch_array($result, MYSQLI_ASSOC);
+                    
+                    // Retrieve individual field value
+                    $vorname = $row["Vorname"];
+                    $nachname = $row["Nachname"];
+                    $plz = $row["PLZ"];
+                    $ortname = $row["Ortname"];
+                } else{
+                    // URL doesn't contain valid id. Redirect to error page
+                    header("location: error.php");
+                    exit();
+                }
+                
+            } else{
+                echo "Oops! Something went wrong. Please try again later.";
+            }
+        }
+        
+        // Close statement
+        mysqli_stmt_close($stmt);
+        
+        // Close connection
+        mysqli_close($con);
+    }  else{
+        // URL doesn't contain id parameter. Redirect to error page
+        header("location: error.php");
+        exit();
+    }
 }
 ?>
  
@@ -88,7 +139,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Create Record</title>
+    <title>Update</title>
     <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.css">
     <style type="text/css">
         .wrapper{
@@ -103,10 +154,10 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             <div class="row">
                 <div class="col-md-12">
                     <div class="page-header">
-                        <h2>Neuen Lernenden hinzufügen</h2>
+                        <h2>Update</h2>
                     </div>
-                    <p>Bitte Formular ausfüllen und abschicken, um neuen Lernenden hinzuzufügen.</p>
-                    <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]); ?>" method="post">
+                    <p>Bitte neue Daten einfügen, um die Tabelle zu aktualisieren.</p>
+                    <form action="<?php echo htmlspecialchars(basename($_SERVER['REQUEST_URI'])); ?>" method="post">
                         <div class="form-group <?php echo (!empty($vorname_err)) ? 'has-error' : ''; ?>">
                             <label>Vorname</label>
                             <input type="text" name="vorname" class="form-control" value="<?php echo $vorname; ?>">
@@ -117,16 +168,17 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             <input type="text" name="nachname" class="form-control" value="<?php echo $nachname; ?>">
                             <span class="help-block"><?php echo $nachname_err;?></span>
                         </div>
-                        <div class="form-group <?php echo (!empty($address_err)) ? 'has-error' : ''; ?>">
+                        <div class="form-group <?php echo (!empty($plz_err)) ? 'has-error' : ''; ?>">
                             <label>Postleizahl</label>
-                            <input type ="text" name="PLZ" class="form-control"><?php echo $plz; ?></textarea>
+                            <input type="text" name="PLZ" class="form-control" value="<?php echo $plz; ?>">
                             <span class="help-block"><?php echo $plz_err;?></span>
                         </div>
-                        <div class="form-group <?php echo (!empty($ortname_err)) ? 'has-error' : ''; ?>">
+                        <div class="form-group <?php echo (!empty($salary_err)) ? 'has-error' : ''; ?>">
                             <label>Ortname</label>
-                            <input type="text" name="ortname" class="form-control" value="<?php echo $ortname; ?>">
+                            <input type="text" name="Ortname" class="form-control" value="<?php echo $ortname; ?>">
                             <span class="help-block"><?php echo $ortname_err;?></span>
                         </div>
+                        <input type="hidden" name="id" value="<?php echo $id; ?>"/>
                         <input type="submit" class="btn btn-primary" value="Submit">
                         <a href="dashboard.php" class="btn btn-default">Abbrechen</a>
                     </form>
