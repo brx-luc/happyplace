@@ -10,7 +10,7 @@
 <html lang="en">
     <head>
         <meta charset="utf-8">
-        <link href="../css/style.css" rel="stylesheet">
+        <link href="css/style.css" rel="stylesheet">
         <title>Happyplace</title>
     </head>
     <body>

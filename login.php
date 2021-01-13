@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8">
 <title>Login</title>
-<link href="../css/style.css" rel="stylesheet">
+<link href="css/style.css" rel="stylesheet">
 </head>
 <body>
 <?php
@@ -30,7 +30,7 @@ and passwort='$password'";
         if($rows==1){
      $_SESSION['email'] = $email/*&& $_SESSION['passwort'] = $password*/;
             // Redirect user to register.php
-     header("Location: sql.php");
+     header("Location: crud/dashboard.php");
          }else{
  echo "<div class='form'>
 <h3>Email/password is incorrect.</h3>
