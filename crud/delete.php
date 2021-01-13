@@ -5,11 +5,11 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     require_once "config.php";
     
     // Prepare a delete statement
-    $sql = "DELETE FROM tbl_lernende (l.id, l.Vorname, l.Nachname, l.fk_o, o.id, o.PLZ, o.Ortname)
-    join tbl_orte o on o.id = l.fk_o
-    WHERE o.id = l.fk_o;";
+    $sql = "DELETE l from tbl_lernende l
+    INNER Join tbl_orte o on o.id = l.fk_o
+    WHERE l.id = ?;";
     
-    if($stmt = mysqli_prepare($link, $sql)){
+    if($stmt = mysqli_prepare($con, $sql)){
         // Bind variables to the prepared statement as parameters
         mysqli_stmt_bind_param($stmt, "i", $param_id);
         
@@ -19,18 +19,21 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         // Attempt to execute the prepared statement
         if(mysqli_stmt_execute($stmt)){
             // Records deleted successfully. Redirect to landing page
-            header("location: index.php");
+            header("location: dashboard.php");
             exit();
         } else{
             echo "Oops! Something went wrong. Please try again later.";
         }
-    }
+        mysqli_stmt_close($stmt);
+          } else {
+              echo "Something's wrong with the query: " . mysqli_error($con);
+          }
      
     // Close statement
-    mysqli_stmt_close($stmt);
+    //mysqli_stmt_close($stmt);
     
     // Close connection
-    mysqli_close($link);
+    mysqli_close($con);
 } else{
     // Check existence of id parameter
     if(empty(trim($_GET["id"]))){
@@ -67,7 +70,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                             <p>Are you sure you want to delete this record?</p><br>
                             <p>
                                 <input type="submit" value="Yes" class="btn btn-danger">
-                                <a href="index.php" class="btn btn-default">No</a>
+                                <a href="dashboard.php" class="btn btn-default">No</a>
                             </p>
                         </div>
                     </form>
