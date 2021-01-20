@@ -7,24 +7,23 @@
 </head>
 <body>
 <?php
-$con = mysqli_connect('localhost','root','','happyplace');
+
+
+require_once("database.class.php");
+$con = new Database("localhost", "root", "", "happyplace");
 // Check connection
-if (mysqli_connect_errno())
-  {
-  echo "Failed to connect to MySQL: " . mysqli_connect_error();
-  }
 // If form submitted, insert values into the database.
 $con;
 if (isset($_REQUEST['email'])){
         // removes backslashes
         //escapes special characters in a string
  $email = stripslashes($_REQUEST['email']);
- $email = mysqli_real_escape_string($con,$email);
+ $email = escape($con,$email);
  $password = stripslashes($_REQUEST['passwort']);
- $password = mysqli_real_escape_string($con,$password);
+ $password = escape($con,$password);
  $query = "INSERT into tbl_users (passwort, email)
 VALUES ('$password', '$email');";
-        $result = mysqli_query($con,$query);
+        $result = $con->query($query);
      if($result){
           echo "<div class='form'>
           <h3>You are registered successfully.</h3>

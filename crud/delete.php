@@ -2,29 +2,30 @@
 // Process delete operation after confirmation
 if(isset($_POST["id"]) && !empty($_POST["id"])){
     // Include config file
-    require_once "config.php";
+    require_once("../database.class.php");
+    $con = new Database("localhost", "root", "", "happyplace");
     
     // Prepare a delete statement
     $sql = "DELETE l from tbl_lernende l
     INNER Join tbl_orte o on o.id = l.fk_o
     WHERE l.id = ?;";
     
-    if($stmt = mysqli_prepare($con, $sql)){
+    if($stmt = $con->prepare($sql)){
         // Bind variables to the prepared statement as parameters
-        mysqli_stmt_bind_param($stmt, "i", $param_id);
+        $stmt->bind_param("i", $param_id);
         
         // Set parameters
         $param_id = trim($_POST["id"]);
         
         // Attempt to execute the prepared statement
-        if(mysqli_stmt_execute($stmt)){
+        if($stmt->execute()){
             // Records deleted successfully. Redirect to landing page
             header("location: dashboard.php");
             exit();
         } else{
             echo "Oops! Something went wrong. Please try again later.";
         }
-        mysqli_stmt_close($stmt);
+        $stmt->close();
           } else {
               echo "Something's wrong with the query: " . mysqli_error($con);
           }
@@ -33,7 +34,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     //mysqli_stmt_close($stmt);
     
     // Close connection
-    mysqli_close($con);
+    $con->close();
 } else{
     // Check existence of id parameter
     if(empty(trim($_GET["id"]))){

@@ -70,4 +70,8 @@ class Database
   {
     return $this->connection->escape_string($string);
   }
+
+  function prepare($string){
+    return $this->connection->prepare($string);
+  }
 }

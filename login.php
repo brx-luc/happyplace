@@ -7,17 +7,17 @@
 </head>
 <body>
 <?php
- require_once("database.class.php");
- $con = new Database("localhost", "root", "", "happyplace");
+require_once("database.class.php");
+$con = new Database("localhost", "root", "", "happyplace");
 session_start();
 // If form submitted, insert values into the database.
 if (isset($_POST['email'])){
         // removes backslashes
  $email = stripslashes($_REQUEST['email']);
         //escapes special characters in a string
- //$email = $con->real_escape_string($email);
+ $email = $con->escape($email);
  $password = $_REQUEST['passwort'];
- //$password =$con->real_escape_string($password);
+ $password =$con->escape($password);
  //Checking is user existing in the database or not
 $query = "SELECT * FROM `tbl_users` WHERE email='$email'
 and passwort='$password'";

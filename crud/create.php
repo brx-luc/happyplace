@@ -1,7 +1,9 @@
 <?php
 // Include config file
-require_once "config.php";
- 
+
+require_once("../database.class.php");
+$con = new Database("localhost", "root", "", "happyplace");
+    
 // Define variables and initialize with empty values
 $vorname = $nachname = $plz = $ortname = "";
 $vorname_err = $nachname_err = $plz_err = $ortname_err = "";
@@ -46,13 +48,13 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         // Prepare an insert statement
         $sql = "INSERT INTO tbl_orte (PLZ, Ortname)
         VALUES (?, ?);";
-        $demande = mysqli_insert_id($con);
+        $demande = $con->insert_id();
         $sql = "INSERT Into tbl_lernende (Vorname, Nachname,fk_o as $demande, fk_m)
           VALUES (?, ?,?, 3);";
 
-        if($stmt = mysqli_prepare($con, $sql)){
+        if($stmt = $con->prepare($sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ssssii", $param_plz, $param_ortname,$param_vorname, $param_nachname, $param_demande, $param_fk );
+            $stmt->bind_param("ssssii", $param_plz, $param_ortname,$param_vorname, $param_nachname, $param_demande, $param_fk );
             
             // Set parameters
            
@@ -64,20 +66,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             $param_fk = 3;
             
             // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
+            if($stmt->execute()){
                 // Records created successfully. Redirect to landing page
                 header("location: dashboard.php");
                 exit();
             } else{
                 echo "Something went wrong. Please try again later.";
             }
-            mysqli_stmt_close($stmt);
+            $stmt->close();
           } else {
-              echo "Something's wrong with the query: " . mysqli_error($con);
+              echo "Something's wrong with the query: " . $con->error();
           }
 
     }
-    mysqli_close($con);
+    $con->close();
 }
 ?>
  

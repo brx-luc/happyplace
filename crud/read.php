@@ -2,22 +2,23 @@
 // Check existence of id parameter before processing further
 if(isset($_GET["id"]) && !empty(trim($_GET["id"]))){
     // Include config file
-    require_once "config.php";
+    require_once("../database.class.php");
+    $con = new Database("localhost", "root", "", "happyplace");
     
     // Prepare a select statement
     $sql = "SELECT l.id, l.Vorname, l.Nachname, o.PLZ, o.Ortname FROM tbl_lernende l
     join tbl_orte o on o.id = l.fk_o
     WHERE l.id = ?;";
     
-    if($stmt = mysqli_prepare($con, $sql)){
+    if($stmt = $con->prepare($sql)){
         // Bind variables to the prepared statement as parameters
-        mysqli_stmt_bind_param($stmt, "i", $param_id);
+        $stmt->bind_param( "i", $param_id);
         
         // Set parameters
         $param_id = trim($_GET["id"]);
         
         // Attempt to execute the prepared statement
-        if(mysqli_stmt_execute($stmt)){
+        if($stmt->execute()){
             $result = mysqli_stmt_get_result($stmt);
     
             if(mysqli_num_rows($result) == 1){
@@ -41,10 +42,10 @@ if(isset($_GET["id"]) && !empty(trim($_GET["id"]))){
     }
      
     // Close statement
-    mysqli_stmt_close($stmt);
+    $stmt->close();
     
     // Close connection
-    mysqli_close($con);
+    $con->close();
 } else{
     // URL doesn't contain id parameter. Redirect to error page
     header("location: error.php");
