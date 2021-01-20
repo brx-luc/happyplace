@@ -7,25 +7,21 @@
 </head>
 <body>
 <?php
- $con = new mysqli('localhost','root','','happyplace');
- // Check connection
- if (mysqli_connect_errno())
-   {
-   echo "Failed to connect to MySQL: " . mysqli_connect_error();
-   }
+ require_once("database.class.php");
+ $con = new Database("localhost", "root", "", "happyplace");
 session_start();
 // If form submitted, insert values into the database.
 if (isset($_POST['email'])){
         // removes backslashes
  $email = stripslashes($_REQUEST['email']);
         //escapes special characters in a string
- $email = mysqli_real_escape_string($con,$email);
+ //$email = $con->real_escape_string($email);
  $password = $_REQUEST['passwort'];
- $password = mysqli_real_escape_string($con,$password);
+ //$password =$con->real_escape_string($password);
  //Checking is user existing in the database or not
 $query = "SELECT * FROM `tbl_users` WHERE email='$email'
 and passwort='$password'";
- $result = mysqli_query($con,$query) or die(mysql_error());
+ $result = $con->query($query);
  $rows = mysqli_num_rows($result);
         if($rows==1){
      $_SESSION['email'] = $email/*&& $_SESSION['passwort'] = $password*/;
