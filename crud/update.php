@@ -49,10 +49,11 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     // Check input errors before inserting in database
     if(empty($vorname_err) && empty($nachname_err) && empty($plz_err) && empty($ortname_err)){
         // Prepare an update statement
-        $sql = $users->save("tbl_users");/*"UPDATE tbl_orte
-        SET PLZ=?, ortname=?
+        $sql = "UPDATE tbl_orte o
+        SET o.PLZ=?, o.ortname=?, l.vorname=?. l.nachname=?
+        INNER join tbl_lernende l on o.id = l.fk_o
         WHERE id=?;";
-        $demande = $con->id();
+        /*$demande = $con->id();
         $sql = "UPDATE tbl_lernende
         SET Vorname = ?, nachname =?, fk_o = $demande
         WHERE id=?;";*/
@@ -60,14 +61,13 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
          
         if($stmt = $con->prepare($sql)){
             // Bind variables to the prepared statement as parameters
-            $stmt->bind_param("ssssi",  $param_plz, $param_ortname, $param_vorname, $param_nachname, $param_id);
+            $stmt->bind_param("ssssi",  $param_plz, $param_ortname, $param_vorname, $param_nachname);
             
             // Set parameters
             $param_plz = $plz;
             $param_ortname = $ortname;
             $param_vorname = $vorname;
             $param_nachname = $nachname;
-            $param_id = $id;
             
             // Attempt to execute the prepared statement
             if($stmt->execute()){
@@ -79,7 +79,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
             }
             $stmt->close();
           } else {
-              echo "Something's wrong with the query: " . mysqli_error($con);
+              echo "Something's wrong with the query: " . $con->connect_error;
           }
         }
          
@@ -102,7 +102,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
           }
           $stmt->close();
         } else {
-            echo "Something's wrong with the query: " . mysqli_error($con);
+            echo "Something's wrong with the query: " . $con->connect_error;
         }
       
         // Close statement

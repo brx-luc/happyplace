@@ -49,21 +49,20 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         $sql = "INSERT INTO tbl_orte (PLZ, Ortname)
         VALUES (?, ?);";
         $demande = $con->id();
-        $sql = "INSERT Into tbl_lernende (Vorname, Nachname,$demande as fk_o, fk_m)
-          VALUES (?, ?,?, 3);";
+        $sql = "INSERT Into tbl_lernende (Vorname, Nachname,fk_o, fk_m)
+        VALUES (?, ?,$demande, 3);";
+        
 
         if($stmt = $con->prepare($sql)){
             // Bind variables to the prepared statement as parameters
-            $stmt->bind_param("ssssii", $param_plz, $param_ortname,$param_vorname, $param_nachname, $param_demande, $param_fk );
-            
+        $stmt->bind_param("ss", $param_plz, $param_ortname /*,$param_vorname, $param_nachname, $param_demande, $param_fk*/ );
             // Set parameters
-           
             $param_plz = $plz;
             $param_ortname = $ortname;
-            $param_vorname = $vorname;
+            /*$param_vorname = $vorname;
             $param_nachname = $nachname;
             $param_demande = $demande;
-            $param_fk = 3;
+            $param_fk = 3;*/
             
             // Attempt to execute the prepared statement
             if($stmt->execute()){
@@ -116,7 +115,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
                             <input type="text" name="nachname" class="form-control" value="<?php echo $nachname; ?>">
                             <span class="help-block"><?php echo $nachname_err;?></span>
                         </div>
-                        <div class="form-group <?php echo (!empty($address_err)) ? 'has-error' : ''; ?>">
+                        <div class="form-group <?php echo (!empty($plz_err)) ? 'has-error' : ''; ?>">
                             <label>Postleizahl</label>
                             <input type ="text" name="PLZ" class="form-control"><?php echo $plz; ?></textarea>
                             <span class="help-block"><?php echo $plz_err;?></span>
