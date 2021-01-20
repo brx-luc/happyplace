@@ -1,7 +1,9 @@
 <?php
 // Include config file
 require_once("../database.class.php");
+require_once("../entity.class.php");
 $con = new Database("localhost", "root", "", "happyplace");
+$users = new Entity($con, "users");
 // Define variables and initialize with empty values
 $vorname = $nachname = $plz = $ortname = "";
 $vorname_err = $nachname_err = $plz_err = $ortname_err = "";
@@ -47,13 +49,13 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     // Check input errors before inserting in database
     if(empty($vorname_err) && empty($nachname_err) && empty($plz_err) && empty($ortname_err)){
         // Prepare an update statement
-        $sql = "UPDATE tbl_orte
+        $sql = $users->save("tbl_users");/*"UPDATE tbl_orte
         SET PLZ=?, ortname=?
         WHERE id=?;";
         $demande = $con->id();
         $sql = "UPDATE tbl_lernende
         SET Vorname = ?, nachname =?, fk_o = $demande
-        WHERE id=?;";
+        WHERE id=?;";*/
         
          
         if($stmt = $con->prepare($sql)){
