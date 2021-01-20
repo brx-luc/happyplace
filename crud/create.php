@@ -48,8 +48,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         // Prepare an insert statement
         $sql = "INSERT INTO tbl_orte (PLZ, Ortname)
         VALUES (?, ?);";
-        $demande = $con->insert_id();
-        $sql = "INSERT Into tbl_lernende (Vorname, Nachname,fk_o as $demande, fk_m)
+        $demande = $con->id();
+        $sql = "INSERT Into tbl_lernende (Vorname, Nachname,$demande as fk_o, fk_m)
           VALUES (?, ?,?, 3);";
 
         if($stmt = $con->prepare($sql)){
@@ -75,7 +75,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             }
             $stmt->close();
           } else {
-              echo "Something's wrong with the query: " . $con->error();
+              printf("Something's wrong with the query: %s",$con->error);
           }
 
     }

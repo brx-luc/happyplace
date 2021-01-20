@@ -74,4 +74,8 @@ class Database
   function prepare($string){
     return $this->connection->prepare($string);
   }
+
+  function id(){
+    return $this->connection->insert_id;
+  }
 }

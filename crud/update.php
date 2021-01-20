@@ -1,7 +1,7 @@
 <?php
 // Include config file
-require_once "config.php";
- 
+require_once("../database.class.php");
+$con = new Database("localhost", "root", "", "happyplace");
 // Define variables and initialize with empty values
 $vorname = $nachname = $plz = $ortname = "";
 $vorname_err = $nachname_err = $plz_err = $ortname_err = "";
@@ -50,15 +50,15 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         $sql = "UPDATE tbl_orte
         SET PLZ=?, ortname=?
         WHERE id=?;";
-        $demande = mysqli_insert_id($con);
+        $demande = $con->id();
         $sql = "UPDATE tbl_lernende
         SET Vorname = ?, nachname =?, fk_o = $demande
         WHERE id=?;";
         
          
-        if($stmt = mysqli_prepare($con, $sql)){
+        if($stmt = $con->prepare($sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "ssssi",  $param_plz, $param_ortname, $param_vorname, $param_nachname, $param_id);
+            $stmt->bind_param("ssssi",  $param_plz, $param_ortname, $param_vorname, $param_nachname, $param_id);
             
             // Set parameters
             $param_plz = $plz;
@@ -68,22 +68,22 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
             $param_id = $id;
             
             // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
+            if($stmt->execute()){
                 // Records updated successfully. Redirect to landing page
                 header("location: dashboard.php");
                 exit();
             } else{
                 echo "Something went wrong. Please try again later.";
             }
-            mysqli_stmt_close($stmt);
+            $stmt->close();
           } else {
               echo "Something's wrong with the query: " . mysqli_error($con);
           }
         }
          
-        if($stmt = mysqli_prepare($con, $sql)){
+        if($stmt = $con->prepare($sql)){
           // Bind variables to the prepared statement as parameters
-          mysqli_stmt_bind_param($stmt, "ssi", $param_vorname, $param_nachname, $param_id);
+          $stmt->bind_param("ssi", $param_vorname, $param_nachname, $param_id);
           
           // Set parameters
           $param_vorname = $vorname;
@@ -91,14 +91,14 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
           $param_id = $demande;
           
           // Attempt to execute the prepared statement
-          if(mysqli_stmt_execute($stmt)){
+          if($stmt->execute()){
               // Records updated successfully. Redirect to landing page
               header("location: dashboard.php");
               exit();
           } else{
               echo "Something went wrong. Please try again later.";
           }
-          mysqli_stmt_close($stmt);
+          $stmt->close();
         } else {
             echo "Something's wrong with the query: " . mysqli_error($con);
         }
@@ -108,7 +108,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     
     
     // Close connection
-    mysqli_close($con);
+    $con->close();
 } else{
     // Check existence of id parameter before processing further
     if(isset($_GET["id"]) && !empty(trim($_GET["id"]))){
@@ -119,16 +119,16 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         $sql = "SELECT l.id, l.Vorname, l.Nachname, o.PLZ, o.Ortname FROM tbl_lernende l
         join tbl_orte o on o.id = l.fk_o
         WHERE l.id = ?;";
-        if($stmt = mysqli_prepare($con, $sql)){
+        if($stmt = $con->prepare($sql)){
             // Bind variables to the prepared statement as parameters
-            mysqli_stmt_bind_param($stmt, "i", $param_id);
+            $stmt->bind_param("i", $param_id);
             
             // Set parameters
             $param_id = $id;
             
             // Attempt to execute the prepared statement
-            if(mysqli_stmt_execute($stmt)){
-                $result = mysqli_stmt_get_result($stmt);
+            if($stmt->execute()){
+                $result = $stmt->get_result();
     
                 if(mysqli_num_rows($result) == 1){
                     /* Fetch result row as an associative array. Since the result set contains only one row, we don't need to use while loop */
@@ -151,10 +151,10 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         }
         
         // Close statement
-        mysqli_stmt_close($stmt);
+        $stmt->close();
         
         // Close connection
-        mysqli_close($con);
+        $con->close();
     }  else{
         // URL doesn't contain id parameter. Redirect to error page
         header("location: error.php");
