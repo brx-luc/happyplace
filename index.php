@@ -1,10 +1,12 @@
 <?php
-    $con = new mysqli('localhost','root','','happyplace');
+    require_once("database.class.php");
+    $database = new Database("localhost", "root", "", "happyplace");
+
     // Check connection
-    if (mysqli_connect_errno())
+    /*if (mysqli_connect_errno())
       {
       echo "Failed to connect to MySQL: " . mysqli_connect_error();
-      }
+      }*/
 ?>
 <!DOCTYPE html>
 <html lang="en">
