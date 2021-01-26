@@ -8,8 +8,8 @@ class Marker {
   public function toJSON(){
     return json_encode([
       "id" => $this->id,
-      "latitude" => $this->lat,
-      "longitude" => $this->lng
+      "lat" => $this->lat,
+      "lng" => $this->lng
     ]);
   }
   public function __construct($lat, $lng, $id = null){
@@ -19,9 +19,9 @@ class Marker {
   }
 
   public function create($con){
-    $lat = $con->escape($this->lat);
-    $lng = $con->escape($this->lng);
-    $sql = "INSERT into 'tbl_marker' (latitude, longitude) VALUES ('$lat', '$lng');";
+    $lat = $con->real_escape_string($this->lat);
+    $lng = $con->real_escape_string($this->lng);
+    $sql = "INSERT into `tbl_marker` (lng, lat) VALUES ('$lng', '$lat');";
 
     $result = $con->query($sql);
   }
@@ -38,7 +38,7 @@ class Marker {
     $markers = [];
 
     foreach ($markersFromDatabase as $marker) {
-      $markers[] = new Marker($marker['latitude'], $marker['longitude'], $marker['id']);
+      $markers[] = new Marker($marker['lat'], $marker['lng'], $marker['id']);
     }
     return $markers;
   }

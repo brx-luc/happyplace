@@ -28,11 +28,11 @@
     <form method="POST" action="insert.php">
       <div>
         <label for="lat">Latitude</label>
-        <input id="lat" name="latitude" />
+        <input id="lat" name="lat" />
       </div>
       <div>
         <label for="lng">Longitude</label>
-        <input id="lng" name="longitude" />
+        <input id="lng" name="lng" />
       </div>
       <button type="submit">Add Marker</button>
     </form>
@@ -76,22 +76,6 @@
           zoom: 10
         })        
       });
-      function set_center(lng, lat, zoomget=17){
-        	map.setView(new ol.View({
-                center: ol.proj.transform([lng, lat], 'EPSG:4326', 'EPSG:3857'),
-            	zoom: zoomget
-            }));
-        }
-        function add_map_point(lng, lat, color) {
-            var vectorLayer = new ol.layer.Vector({
-                source: new ol.source.Vector({
-                    features: [new ol.Feature({
-                        geometry: new ol.geom.Point(ol.proj.transform([parseFloat(lng), parseFloat(lat)], 'EPSG:4326', 'EPSG:3857')),
-                      })]
-                }),
-            })
-            map.addLayer(vectorLayer);
-        }
     </script>
   </body>
 </html>

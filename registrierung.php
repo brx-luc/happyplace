@@ -18,9 +18,9 @@ if (isset($_REQUEST['email'])){
         // removes backslashes
         //escapes special characters in a string
  $email = stripslashes($_REQUEST['email']);
- $email = escape($con,$email);
+ //$email = $con->escape_string($email);
  $password = stripslashes($_REQUEST['passwort']);
- $password = escape($con,$password);
+ //$password = $con->escape_string($password);
  $query = "INSERT into tbl_users (passwort, email)
 VALUES ('$password', '$email');";
         $result = $con->query($query);
