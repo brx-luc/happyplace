@@ -48,6 +48,7 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         // Prepare an insert statement
         $sql = "INSERT INTO tbl_orte (PLZ, Ortname)
         VALUES (?, ?);";
+        printf("New id %d", $con->id());
         $demande = $con->id();
         $sql = "INSERT Into tbl_lernende (Vorname, Nachname,fk_o, fk_m)
         VALUES (?, ?,$demande, 3);";
@@ -66,7 +67,6 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             
             // Attempt to execute the prepared statement
             if($stmt->execute()){
-                // Records created successfully. Redirect to landing page
                 header("location: dashboard.php");
                 exit();
             } else{
@@ -74,9 +74,8 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
             }
             $stmt->close();
           } else {
-              printf("Something's wrong with the query: %s",$con->error);
-          }
-
+              printf("Something's wrong with the query: %s",$con->connect_error);
+        }
     }
     $con->close();
 }

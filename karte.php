@@ -1,3 +1,6 @@
+<?php
+  require_once 'data.php';
+?>
 <!doctype html>
 <html lang="en">
   <head>
@@ -8,33 +11,65 @@
         height: 1000px;
         width: 1800px;
       }
+      input{
+            display: block;
+        }
+        label{
+            display: block;
+            margin-top: 0.5rem;
+            font-size: 1rem;
+            color:  #0067ab;
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/gh/openlayers/openlayers.github.io@master/en/v6.5.0/build/ol.js"></script>
     <title>OpenLayers example</title>
   </head>
   <body>
-    <h2>My Map</h2>
-    <div id="map" class="map"></div>
+    <form method="POST" action="insert.php">
+      <div>
+        <label for="lat">Latitude</label>
+        <input id="lat" name="latitude" />
+      </div>
+      <div>
+        <label for="lng">Longitude</label>
+        <input id="lng" name="longitude" />
+      </div>
+      <button type="submit">Add Marker</button>
+    </form>
+      <div id="map" class="map"></div>
+      
     <script type="text/javascript">
-      var myRequest = new XMLHttpRequest();
+    var markerPoints = [<?php 
+                      foreach ($markers as $marker){
+                      print $marker->toJSON();
+                      print ",\n\n";
+                      }?>];
+    var markers = [];
+    for (let marker of markerPoints){
+      markers.push(new ol.Feature({
+        geometry: new ol.geom.Point(ol.proj.fromLonLat([marker.lng, marker.lat]))
+      }));
+    }
+    var markers = new ol.layer.Vector({
+      source: new ol.source.Vector({
+        features: markers
+      }),
+      style: new ol.style.Style({
+        image: new ol.style.Icon({
+          anchor: [0.5, 46],
+          anchorXUnits: 'fraction',
+          anchorYUnits: 'pixels',
+          src: 'home.svg'
+        })
+      })
+    })
       var map = new ol.Map({
         target: 'map',
         layers: [
-          /*new ol.layer.Tile({
+          new ol.layer.Tile({
             source: new ol.source.OSM()
-          }),*/
-          new ol.layer.Vector({
-            source: new ol.source.Vector({
-              url: './assets/data/countries.geojson', 
-              format: new ol.format.GeoJSON()
-                           
-            })
           }),
-           new ol.layer.Tile({
-              source: new ol.source.XYZ({
-                urls : ["http://a.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png","http://b.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png","http://c.tile3.opencyclemap.org/landscape/{z}/{x}/{y}.png"]
-            })
-          })
+          markers
         ],
         view: new ol.View({
           center: ol.proj.fromLonLat([8.5208324, 47.3601270]),
@@ -58,25 +93,5 @@
             map.addLayer(vectorLayer);
         }
     </script>
-    <div id="list"> 
-    <button style="background-color: #f1f1f1;" id="dark-light" onclick="dark_light()"><i class="fas fa-lightbulb"></i></button>
-    <button style="background-color: #f1f1f1;" onclick="set_center(0, 0, 1);" id="map_reset"><i class="fas fa-redo"></i> Reset Map</button>
-    <h2><i class="fas fa-users"></i> Members</h2>
-
-        <script type='text/javascript'>
-            add_map_point(9.5761204, 46.9821456, '00ff00');
-        </script><a style='background-color: #f1f1f1;' class='list-content' onclick='set_center(9.5761204, 46.9821456);'>1 |  L*** B****</a><br>
-        <script type='text/javascript'>
-            add_map_point(8.507186, 47.4187622, '0000ff');
-        </script><a style='background-color: #f1f1f1;' class='list-content' onclick='set_center(8.507186, 47.4187622);'>2 |  O***** J****</a><br>
-        <script type='text/javascript'>
-            add_map_point(8.72571, 47.2475, 'ff0000');
-        </script><a style='background-color: #f1f1f1;' class='list-content' onclick='set_center(8.72571, 47.2475);'>3 |  R**** L******</a><br>    
-        <script type='text/javascript'>
-        add_map_point(8.5724143, 47.4049996, 'ff0000');
-        </script><a style='background-color: #f1f1f1;' class='list-content' onclick='set_center(8.5724143, 47.4049996);'>3 |  J**** J***</a><br>    
-    <?php
-    require_once 'register.php';
-    ?>
   </body>
 </html>

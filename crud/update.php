@@ -1,10 +1,9 @@
 <?php
 // Include config file
 require_once("../database.class.php");
-require_once("../entity.class.php");
 $con = new Database("localhost", "root", "", "happyplace");
-$users = new Entity($con, "users");
 // Define variables and initialize with empty values
+$id = 0;
 $vorname = $nachname = $plz = $ortname = "";
 $vorname_err = $nachname_err = $plz_err = $ortname_err = "";
  
@@ -41,17 +40,17 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     
     $input_ortname = trim($_POST["Ortname"]);
     if(empty($input_ortname)){
-        $salary_err = "Bitte geben Sie einen Ortnamen ein.";     
+        $ortname_err = "Bitte geben Sie einen Ortnamen ein.";     
     } else{
         $ortname = $input_ortname;
     }
     
     // Check input errors before inserting in database
     if(empty($vorname_err) && empty($nachname_err) && empty($plz_err) && empty($ortname_err)){
-        // Prepare an update statement
+        
         $sql = "UPDATE tbl_orte o
-        SET o.PLZ=?, o.ortname=?, l.vorname=?. l.nachname=?
-        INNER join tbl_lernende l on o.id = l.fk_o
+        SET o.id = ?, o.PLZ=?, o.ortname=?, l.vorname=?. l.nachname=?, l.fk_o = ?
+        join tbl_lernende l on o.id = l.fk_o
         WHERE id=?;";
         /*$demande = $con->id();
         $sql = "UPDATE tbl_lernende
@@ -61,13 +60,15 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
          
         if($stmt = $con->prepare($sql)){
             // Bind variables to the prepared statement as parameters
-            $stmt->bind_param("ssssi",  $param_plz, $param_ortname, $param_vorname, $param_nachname);
+            $stmt->bind_param("issssi", $param_id, $param_plz, $param_ortname, $param_vorname, $param_nachname, $param_fk);
             
             // Set parameters
+            $param_id = $id;
             $param_plz = $plz;
             $param_ortname = $ortname;
             $param_vorname = $vorname;
             $param_nachname = $nachname;
+            $param_fk = $con->id();
             
             // Attempt to execute the prepared statement
             if($stmt->execute()){
@@ -106,8 +107,6 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
         }
       
         // Close statement
-       // mysqli_stmt_close($stmt);
-    
     
     // Close connection
     $con->close();
@@ -203,7 +202,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
                             <input type="text" name="PLZ" class="form-control" value="<?php echo $plz; ?>">
                             <span class="help-block"><?php echo $plz_err;?></span>
                         </div>
-                        <div class="form-group <?php echo (!empty($salary_err)) ? 'has-error' : ''; ?>">
+                        <div class="form-group <?php echo (!empty($ortname_err)) ? 'has-error' : ''; ?>">
                             <label>Ortname</label>
                             <input type="text" name="Ortname" class="form-control" value="<?php echo $ortname; ?>">
                             <span class="help-block"><?php echo $ortname_err;?></span>
