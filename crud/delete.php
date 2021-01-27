@@ -6,7 +6,7 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     $con = new Database("localhost", "root", "", "happyplace");
     
     // Prepare a delete statement
-    $sql = "DELETE l from tbl_lernende l
+    $sql = "DELETE l, o from tbl_lernende l
     INNER Join tbl_orte o on o.id = l.fk_o
     WHERE l.id = ?;";
     
@@ -29,9 +29,6 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
           } else {
               echo "Something's wrong with the query: " . mysqli_error($con);
           }
-     
-    // Close statement
-    //mysqli_stmt_close($stmt);
     
     // Close connection
     $con->close();

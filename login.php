@@ -11,7 +11,7 @@ require_once("database.class.php");
 $con = new Database("localhost", "root", "", "happyplace");
 session_start();
 // If form submitted, insert values into the database.
-if (isset($_POST['email'])){
+if (isset($_POST['email']) && isset($_POST['passwort'])){
         // removes backslashes
  $email = stripslashes($_REQUEST['email']);
         //escapes special characters in a string

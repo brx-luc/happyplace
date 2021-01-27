@@ -48,16 +48,10 @@ if(isset($_POST["id"]) && !empty($_POST["id"])){
     // Check input errors before inserting in database
     if(empty($vorname_err) && empty($nachname_err) && empty($plz_err) && empty($ortname_err)){
         
-        $sql = "UPDATE tbl_orte o
-        SET o.id = ?, o.PLZ=?, o.ortname=?, l.vorname=?. l.nachname=?, l.fk_o = ?
-        join tbl_lernende l on o.id = l.fk_o
-        WHERE id=?;";
-        /*$demande = $con->id();
-        $sql = "UPDATE tbl_lernende
-        SET Vorname = ?, nachname =?, fk_o = $demande
-        WHERE id=?;";*/
-        
-         
+        $sql = "DELETE l, o from tbl_lernende l
+        INNER Join tbl_orte o on o.id = l.fk_o
+        WHERE l.id = ?;";
+    
         if($stmt = $con->prepare($sql)){
             // Bind variables to the prepared statement as parameters
             $stmt->bind_param("issssi", $param_id, $param_plz, $param_ortname, $param_vorname, $param_nachname, $param_fk);

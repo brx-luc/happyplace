@@ -21,14 +21,14 @@ class Marker {
   public function create($con){
     $lat = $con->real_escape_string($this->lat);
     $lng = $con->real_escape_string($this->lng);
-    $sql = "INSERT into `tbl_marker` (lng, lat) VALUES ('$lng', '$lat');";
+    $sql = "INSERT into `tbl_orte` (lng, lat) VALUES ('$lng', '$lat');";
 
     $result = $con->query($sql);
   }
 
   public static function fetchAll($con)
   {
-    $sql = "SELECT * FROM `tbl_marker`";
+    $sql = "SELECT lng, lat, id FROM `tbl_orte`";
     $result = $con->query($sql);
 
     if (!$result) {

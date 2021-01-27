@@ -48,33 +48,42 @@ if($_SERVER["REQUEST_METHOD"] == "POST"){
         // Prepare an insert statement
         $sql = "INSERT INTO tbl_orte (PLZ, Ortname)
         VALUES (?, ?);";
-        printf("New id %d", $con->id());
-        $demande = $con->id();
-        $sql = "INSERT Into tbl_lernende (Vorname, Nachname,fk_o, fk_m)
-        VALUES (?, ?,$demande, 3);";
+        /*$sql = "IF (NOT EXISTS (SELECT * from tbl_orte where PLZ = ? AND ortname = ?))
+        Begin INSERT into tbl_ort (PLZ, Ortname)
+        VALUES (?,?)
+        End;";*/
         
-
         if($stmt = $con->prepare($sql)){
             // Bind variables to the prepared statement as parameters
-        $stmt->bind_param("ss", $param_plz, $param_ortname /*,$param_vorname, $param_nachname, $param_demande, $param_fk*/ );
+        $stmt->bind_param("ss", $param_plz, $param_ortname);
             // Set parameters
             $param_plz = $plz;
             $param_ortname = $ortname;
-            /*$param_vorname = $vorname;
-            $param_nachname = $nachname;
-            $param_demande = $demande;
-            $param_fk = 3;*/
             
             // Attempt to execute the prepared statement
             if($stmt->execute()){
-                header("location: dashboard.php");
+                $ort_id =$stmt->insert_id;
+                $sql = "INSERT Into tbl_lernende (Vorname, Nachname,fk_o)
+                 VALUES (?, ?,$ort_id);";
+         if($stmt = $con->prepare($sql)){
+            // Bind variables to the prepared statement as parameters
+             $stmt->bind_param("ss", $param_vorname, $param_nachname);
+            // Set parameters
+            $param_vorname = $vorname;
+            $param_nachname = $nachname;
+        
+            $stmt->execute();
+            header('Location: dashboard.php');
                 exit();
             } else{
                 echo "Something went wrong. Please try again later.";
             }
+            $ort_id = $stmt->id();
             $stmt->close();
           } else {
               printf("Something's wrong with the query: %s",$con->connect_error);
+        }
+
         }
     }
     $con->close();
